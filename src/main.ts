@@ -1,21 +1,18 @@
-import { ConfigService } from '@nestjs/config';
-import {Logger} from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as createRedisStore from 'connect-redis';
-import * as cookieParser from 'cookie-parser';
-import * as csurf from 'csurf';
 import * as passport from 'passport';
 import * as session from 'express-session';
-import {createClient} from 'redis';
+import { createClient } from 'redis';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  app.useGlobalPipes(new ValidationPipe());
 
   const RedisStore = createRedisStore(session);
   const redisHost: string = process.env.REDIS_HOST
-  const redisPort: number =Number( process.env.REDIS_PORT);
+  const redisPort: number = Number(process.env.REDIS_PORT);
   const redisClient = createClient({
     host: redisHost,
     port: redisPort,
@@ -28,7 +25,7 @@ async function bootstrap() {
   );
   app.use(
     session({
-      store: new RedisStore({client: redisClient as any}),
+      store: new RedisStore({ client: redisClient as any }),
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
@@ -41,5 +38,6 @@ async function bootstrap() {
   );
   app.use(passport.initialize());
   app.use(passport.session());
+  await app.listen(3000);
 }
 bootstrap();
