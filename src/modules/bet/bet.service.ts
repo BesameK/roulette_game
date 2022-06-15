@@ -1,9 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import * as redis from 'redis';
-import { promisifyAll } from 'bluebird';
 import * as jwt from 'jsonwebtoken';
 
-promisifyAll(redis);
 @Injectable()
 export class BetService {
 
